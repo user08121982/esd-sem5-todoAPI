@@ -1,10 +1,15 @@
 const express = require('express');
+const path = require('path');
 const app = express();
 const mongo = require('./mongo');
 mongo.connect();
 
-const tasksRouter = require('./routes/tasks');
-app.use('/tasks', tasksRouter);
 app.use(express.json());
+app.use('/tasks', require('./routes/tasks'));
 
-app.listen(3001, () => { console.log('Server Started') });
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname + '/static/index.html'));
+});
+
+const PORT = 80;
+app.listen(PORT, () => { console.log(`App running on http://localhost:${PORT}`) });
