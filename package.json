@@ -4,7 +4,8 @@
   "description": "To do list application with CRUD operations",
   "main": "index.js",
   "scripts": {
-    "devStart": "nodemon index.js"
+    "devStart": "nodemon index.js",
+    "build": "node index.js"
   },
   "author": "Avinash Singh",
   "license": "ISC",

@@ -49,6 +49,9 @@ router.delete('/:id', async (req, res) => {
 // UPDATE
 router.patch('/:id', async (req, res) => {
     try {
+        if (req.body.due) {
+            req.body.due = new Date(req.body.due);
+        }
         const ack = await coll.updateOne({ _id: new ObjectId(req.params.id) }, { $set: req.body });
         if (ack.modifiedCount) res.json({ message: 'Task Updated' });
         else res.json({ message: 'Cannot find task' });
