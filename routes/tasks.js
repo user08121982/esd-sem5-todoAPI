@@ -12,7 +12,7 @@ const coll = mongo.getDB().collection('tasks');
 // READ
 router.get('/', async (req, res) => {
     try {
-        const tasks = await coll.find();
+        const tasks = await coll.find({ "userId": req.session.user.email });
         res.json(await tasks.toArray());
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -26,7 +26,8 @@ router.post('/', async (req, res) => {
             title: req.body.title,
             description: req.body.description,
             due: new Date(req.body.due),
-            status: req.body.status
+            status: req.body.status,
+            userId: req.session.user.email
         };
         await coll.insertOne(task);
         res.status(201).json(task);

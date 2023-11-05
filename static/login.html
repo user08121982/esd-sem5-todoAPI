@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Task Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-800 text-white h-screen flex items-center justify-center">
+
+    <div class="w-96 bg-gray-700 p-8 rounded shadow-md">
+        <h1 class="text-3xl font-bold mb-6">Login</h1>
+
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label for="loginEmail" class="block text-white">Email:</label>
+                <input type="text" id="loginEmail" class="w-full p-2 text-gray-600 rounded border border-gray-700"
+                    placeholder="Your email" required>
+            </div>
+
+            <div>
+                <label for="loginPassword" class="block text-white">Password:</label>
+                <input type="password" id="loginPassword"
+                    class="w-full p-2 text-gray-600 rounded border border-gray-700" placeholder="Your password"
+                    required>
+            </div>
+
+            <button type="submit"
+                class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Login</button>
+        </form>
+        <p id="loginMess" class="mt-2 text-red-500"></p>
+        <p class="mt-4 text-white">New here? <a href="/signup" class="text-blue-400">Signup</a></p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const loginMessage = document.getElementById('loginMess');
+
+            try {
+                const response = await performLogin(email, password);
+                if (response.success) {
+                    window.location.href = '/';
+                } else {
+                    loginMessage.textContent = 'Invalid email or password.';
+                }
+            } catch (err) {
+                loginMessage.textContent = 'Login failed. Please try again.';
+            }
+        });
+
+        async function performLogin(email, password) {
+            const response = await fetch('/login/authenticate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+            return response.json();
+        }
+    </script>
+
+</body>
+
+</html>

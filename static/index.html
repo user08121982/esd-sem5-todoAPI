@@ -10,8 +10,15 @@
 
 <body class="bg-gray-800 text-white">
     <div class="container mx-auto p-4">
-        <h1 class="text-3xl mb-4">Task Manager</h1>
-
+        <div class="flex justify-between items-center">
+            <h1 class="text-3xl mb-4">Task Manager</h1>
+            <div>
+                <span id="helloMessage" class="text-white text-lg font-bold mr-6"></span>
+                <button id="logoutButton"
+                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded mr-2"
+                    onclick="logout()">Logout</button>
+            </div>
+        </div>
         <!-- Form for adding tasks -->
         <form id="taskForm" class="mb-4">
             <div class="flex flex-col mb-2">
@@ -67,7 +74,8 @@
                             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">Update
                             Task</button>
                         <button id="closeEditTaskModal"
-                            class="ml-2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" type="button">Close</button>
+                            class="ml-2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                            type="button">Close</button>
                     </div>
                 </form>
             </div>
@@ -195,10 +203,18 @@
             document.getElementById('editTaskModal').classList.add('hidden');
         });
 
+        async function logout() {
+            const response = await fetch('/login/logout', {
+                method: 'POST',
+            });
+            window.location.reload();
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             renderTasks();
+            const res = await fetch('/login/user');
+            document.getElementById('helloMessage').textContent = `Hello, ${(await res.json()).username}!`;
         });
-
     </script>
 </body>
 
