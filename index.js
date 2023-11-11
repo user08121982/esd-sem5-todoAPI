@@ -12,7 +12,7 @@ const checkAuth = (req, res, next) => {
     next();
 };
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(session({
     secret: process.env.SECRET_KEY,
     resave: false,
@@ -20,6 +20,7 @@ app.use(session({
     cookie: { secure: false } // Change this to true if using HTTPS
 }));
 
+app.use('/images', express.static(`${__dirname}/images`));
 app.use('/tasks', checkAuth, require('./routes/tasks'));
 app.use('/signup', require('./routes/signup'));
 app.use('/login', require('./routes/login'));

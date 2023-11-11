@@ -12,13 +12,31 @@
     <div class="container mx-auto p-4">
         <div class="flex justify-between items-center">
             <h1 class="text-3xl mb-4">Task Manager</h1>
-            <div>
-                <span id="helloMessage" class="text-white text-lg font-bold mr-6"></span>
+            <div class="flex items-center">
+                <span id="helloMessage" class="text-white text-lg font-bold mr-4"></span>
+                <div class="relative inline-block text-left">
+                    <button id="profileButton" type="button" class="text-white">
+                        <img id="profileIcon" src="/images/profile.jpg" alt="Profile Image"
+                            class="w-8 h-8 rounded-full">
+                    </button>
+                    <div id="profileDropdown" style="right: -2rem; outline: 2px solid #55637a;"
+                        class="hidden absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg">
+                        <div class="py-2">
+                            <span id="editProfileMenu"
+                                class="block px-4 py-2 text-white hover:bg-gray-700 cursor-pointer">Edit
+                                Profile</span>
+                            <span id="changePasswordMenu"
+                                class="block px-4 py-2 text-white hover:bg-gray-700 cursor-pointer">Change
+                                Password</span>
+                        </div>
+                    </div>
+                </div>
                 <button id="logoutButton"
-                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded mr-2"
+                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded mr-2 ml-10"
                     onclick="logout()">Logout</button>
             </div>
         </div>
+
         <!-- Form for adding tasks -->
         <form id="taskForm" class="mb-4">
             <div class="flex flex-col mb-2">
@@ -74,6 +92,73 @@
                             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">Update
                             Task</button>
                         <button id="closeEditTaskModal"
+                            class="ml-2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                            type="button">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Profile Modal -->
+        <div id="editProfileModal"
+            class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center p-4">
+            <div class="bg-gray-800 p-8 rounded shadow-md w-96 border-2 border-white">
+                <h2 class="text-2xl font-bold mb-4 text-white">Edit Profile</h2>
+                <form id="editProfileForm">
+                    <div class="flex flex-col mb-4">
+                        <label for="editEmail" class="text-white">Email:</label>
+                        <input type="email" id="editEmail" class="p-2 text-gray-600 rounded border border-gray-700 mb-2"
+                            placeholder="Your Email" required>
+                    </div>
+                    <div class="flex flex-col mb-4">
+                        <label for="editProfileIcon" class="text-white">Profile Icon:</label>
+                        <img id="currentProfileIcon" alt="Current Profile Image" class="w-20 h-20 rounded-full mb-1">
+                        <input type="file" id="editProfileIcon" onchange="previewProfileIcon(this)"
+                            class="p-2 text-gray-600 rounded border border-gray-700 mb-2" accept="image/*">
+                    </div>
+                    <div>
+                        <button type="submit"
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">Update
+                            Profile</button>
+                        <button id="closeEditProfileModal"
+                            class="ml-2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                            type="button">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Change Password Modal -->
+        <div id="changePasswordModal"
+            class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center p-4">
+            <div class="bg-gray-800 p-8 rounded shadow-md w-96 border-2 border-white">
+                <h2 class="text-2xl font-bold mb-4 text-white">Change Password</h2>
+                <form id="changePasswordForm">
+                    <div class="flex flex-col mb-4">
+                        <label for="currentPassword" class="text-white">Current Password:</label>
+                        <input type="password" id="currentPassword"
+                            class="p-2 text-gray-600 rounded border border-gray-700" placeholder="Current Password"
+                            required>
+                        <p id="passMess0" class="text-red-500 mb-2"></p>
+                    </div>
+                    <div class="flex flex-col mb-4">
+                        <label for="newPassword" class="text-white">New Password:</label>
+                        <input type="password" id="newPassword" class="p-2 text-gray-600 rounded border border-gray-700"
+                            placeholder="New Password" required>
+                        <p id="passMess1" class="text-red-500 mb-2"></p>
+                    </div>
+                    <div class="flex flex-col mb-4">
+                        <label for="confirmNewPassword" class="text-white">Re-enter New Password:</label>
+                        <input type="password" id="confirmNewPassword"
+                            class="p-2 text-gray-600 rounded border border-gray-700" placeholder="Re-enter New Password"
+                            required>
+                        <p id="passMess2" class="text-red-500 mb-2"></p>
+                    </div>
+                    <div>
+                        <button type="submit"
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">Change
+                            Password</button>
+                        <button id="closeChangePasswordModal"
                             class="ml-2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                             type="button">Close</button>
                     </div>
@@ -199,12 +284,109 @@
                 "status": status
             });
 
-            // Close the edit task modal
             document.getElementById('editTaskModal').classList.add('hidden');
         });
 
+        const dropdown = document.getElementById('profileDropdown');
+        document.getElementById('profileButton').addEventListener('click', () => {
+            dropdown.classList.toggle('hidden');
+        });
+        // Close the dropdown if the user clicks outside of it
+        window.addEventListener('click', (event) => {
+            if (!document.getElementById('profileButton').contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Function to open the edit profile modal
+        document.getElementById('editProfileMenu').addEventListener('click', async () => {
+            document.getElementById('editProfileModal').classList.remove('hidden');
+            const user = await (await fetch('/login/user')).json();
+            document.getElementById('editEmail').value = user.email;
+            document.getElementById('currentProfileIcon').src = document.getElementById('profileIcon').src;
+        });
+        // Function to close the edit profile modal
+        document.getElementById('closeEditProfileModal').addEventListener('click', () => {
+            document.getElementById('editProfileModal').classList.add('hidden');
+        });
+        // Function to handle the submission of the edit profile form
+        document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('editEmail').value;
+            const profileIcon = document.getElementById('currentProfileIcon').src;
+
+            const response = await (await fetch('/login/editProfile', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, profileIcon })
+            })).json();
+
+            alert(response.message);
+            if (response.success) {
+                window.location.reload();
+            }
+        });
+        function previewProfileIcon(input) {
+            const file = input.files[0];
+            if (file) {
+                if (file.size > 2097152) {
+                    alert("File is too big!\nFile size should be less than 2MB.");
+                    input.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('currentProfileIcon').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Function to open the change password modal
+        document.getElementById('changePasswordMenu').addEventListener('click', () => {
+            document.getElementById('changePasswordModal').classList.remove('hidden');
+        });
+        // Function to close the change password modal
+        document.getElementById('closeChangePasswordModal').addEventListener('click', () => {
+            document.getElementById('changePasswordModal').classList.add('hidden');
+        });
+        // Function to handle the submission of the change password form
+        document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            document.getElementById('passMess0').textContent = '';
+            document.getElementById('passMess1').textContent = '';
+            document.getElementById('passMess2').textContent = '';
+            const password = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+            if (newPassword !== confirmNewPassword) {
+                document.getElementById('passMess1').textContent = 'Passwords do not match.';
+                document.getElementById('passMess2').textContent = 'Passwords do not match.';
+                return;
+            }
+            const response = await (await fetch('/login/changePassword', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ password, newPassword })
+            })).json();
+
+            if (response.code == 1) {
+                alert(response.message);
+                window.location.reload();
+            } else if (response.code == 2) {
+                document.getElementById('passMess0').textContent = response.message;
+            } else alert(response.message);
+        });
+
         async function logout() {
-            const response = await fetch('/login/logout', {
+            await fetch('/login/logout', {
                 method: 'POST',
             });
             window.location.reload();
@@ -212,8 +394,11 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             renderTasks();
-            const res = await fetch('/login/user');
-            document.getElementById('helloMessage').textContent = `Hello, ${(await res.json()).username}!`;
+            const user = await (await fetch('/login/user')).json();
+            document.getElementById('helloMessage').textContent = `Hello, ${user.username}!`;
+            if (user.profileIcon) {
+                document.getElementById('profileIcon').src = user.profileIcon;
+            }
         });
     </script>
 </body>
