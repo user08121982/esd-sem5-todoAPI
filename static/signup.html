@@ -40,7 +40,7 @@
                     required>
             </div>
 
-            <button type="submit"
+            <button type="submit" id="subBtn"
                 class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Signup</button>
         </form>
         <p id="signupMess" class="mt-2 text-red-500"></p>
@@ -48,8 +48,11 @@
     </div>
 
     <script>
+        var flag=false;
         document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if(flag) return;
+            flag=true;
 
             const email = document.getElementById('signupEmail').value;
             const username = document.getElementById('signupUsername').value;
@@ -60,25 +63,26 @@
             // Check if passwords match
             if (password !== confirmPassword) {
                 signupMessage.textContent = 'Passwords do not match.';
-                return;
+                flag=false; return;
             }
 
             // Check if the username or email already exists
             const userExists = await checkUserExists(username, email);
             if (userExists.username) {
                 signupMessage.textContent = 'Username already exists.';
-                return;
+                flag=false; return;
             }
             if (userExists.email) {
                 signupMessage.textContent = 'Account with this email already exists.';
-                return;
+                flag=false; return;
             }
 
             const response = await performSignup(username, email, password);
             if (!response.success) {
                 signupMessage.textContent = 'Registration failed. Please try again.';
-                return;
+                flag=false; return;
             }
+            document.getElementById('subBtn').disabled=true;
             signupMessage.style.color = '#00dd00';
             signupMessage.style.fontWeight = 'bold';
             signupMessage.style.fontSize = '18px';

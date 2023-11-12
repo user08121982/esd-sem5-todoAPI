@@ -35,13 +35,18 @@ router.get('/user', async (req, res) => {
 
 router.patch('/editProfile', async (req, res) => {
     try {
+        const user = await (await coll.find({ "email": req.body.email })).toArray();
+        const count = user.length;
+        if (count > 1 || (count == 1 && user[0]._id != req.session.user._id)) {
+            return res.json({ code: 2, message: 'Account with this email already exists.' });
+        }
         for ([key, value] of Object.entries(req.body)) {
             req.session.user[key] = value;
         }
         await coll.updateOne({ "username": req.session.user.username }, { $set: req.body });
-        res.json({ success: true, message: 'Profile updated.' });
+        res.json({ code: 1, message: 'Profile updated.' });
     } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        res.status(500).json({ code: 3, message: err.message });
     }
 });
 

@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        #profSubmit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 
 <body class="bg-gray-800 text-white">
@@ -28,6 +34,9 @@
                             <span id="changePasswordMenu"
                                 class="block px-4 py-2 text-white hover:bg-gray-700 cursor-pointer">Change
                                 Password</span>
+                            <span id="deleteAccountMenu"
+                                class="block px-4 py-2 text-white hover:bg-gray-700 cursor-pointer">Delete
+                                Account</span>
                         </div>
                     </div>
                 </div>
@@ -44,7 +53,8 @@
                     placeholder="Task Title" required>
                 <input type="text" id="description" class="p-2 text-gray-600 rounded border border-gray-700 mb-2"
                     placeholder="Task Description" required>
-                <input type="date" id="dueDate" class="p-2 text-gray-600 rounded border border-gray-700 mb-2" required>
+                <input placeholder="Due Date mm/dd/yyyy" onfocus="(this.type='date')" onblur="(this.type='text')"
+                    id="dueDate" class="p-2 text-gray-600 rounded border border-gray-700 mb-2" required>
                 <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add
                     Task</button>
             </div>
@@ -107,8 +117,9 @@
                 <form id="editProfileForm">
                     <div class="flex flex-col mb-4">
                         <label for="editEmail" class="text-white">Email:</label>
-                        <input type="email" id="editEmail" class="p-2 text-gray-600 rounded border border-gray-700 mb-2"
+                        <input type="email" id="editEmail" class="p-2 text-gray-600 rounded border border-gray-700"
                             placeholder="Your Email" required>
+                        <p id="profMess" class="text-red-500 mb-2"></p>
                     </div>
                     <div class="flex flex-col mb-4">
                         <label for="editProfileIcon" class="text-white">Profile Icon:</label>
@@ -117,7 +128,7 @@
                             class="p-2 text-gray-600 rounded border border-gray-700 mb-2" accept="image/*">
                     </div>
                     <div>
-                        <button type="submit"
+                        <button type="submit" id="profSubmit"
                             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">Update
                             Profile</button>
                         <button id="closeEditProfileModal"
@@ -165,9 +176,27 @@
                 </form>
             </div>
         </div>
+
+        <!-- Delete Account Modal -->
+        <div id="deleteAccountModal"
+            class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center p-4">
+            <div class="bg-gray-800 p-8 rounded shadow-md w-96 border-2 border-white">
+                <h2 class="text-2xl font-bold mb-4 text-white">Confirm Account Deletion</h2>
+                <p class="text-white mb-4">Are you sure you want to delete your account? This action cannot be undone.
+                </p>
+                <div class="flex justify-end">
+                    <button id="confirmDeleteAccount"
+                        class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2">Yes</button>
+                    <button id="cancelDeleteAccount"
+                        class="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        type="button">No</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
+        var user;
         async function fetchTasks() {
             const response = await fetch('/tasks');
             const tasks = await response.json();
@@ -301,13 +330,15 @@
         // Function to open the edit profile modal
         document.getElementById('editProfileMenu').addEventListener('click', async () => {
             document.getElementById('editProfileModal').classList.remove('hidden');
-            const user = await (await fetch('/login/user')).json();
+            document.getElementById('profSubmit').disabled = true;
+            user = await (await fetch('/login/user')).json();
             document.getElementById('editEmail').value = user.email;
             document.getElementById('currentProfileIcon').src = document.getElementById('profileIcon').src;
         });
         // Function to close the edit profile modal
         document.getElementById('closeEditProfileModal').addEventListener('click', () => {
             document.getElementById('editProfileModal').classList.add('hidden');
+            document.getElementById('profMess').textContent = '';
         });
         // Function to handle the submission of the edit profile form
         document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
@@ -324,10 +355,12 @@
                 body: JSON.stringify({ email, profileIcon })
             })).json();
 
-            alert(response.message);
-            if (response.success) {
+            if (response.code == 1) {
+                alert(response.message);
                 window.location.reload();
-            }
+            } else if (response.code == 2) {
+                document.getElementById('profMess').textContent = response.message;
+            } else alert(response.message);
         });
         function previewProfileIcon(input) {
             const file = input.files[0];
@@ -340,10 +373,16 @@
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     document.getElementById('currentProfileIcon').src = e.target.result;
+                    document.getElementById('profSubmit').disabled = (document.getElementById('profileIcon').src == document.getElementById('currentProfileIcon').src)
+                        && (user.email == document.getElementById('editEmail').value);
                 };
                 reader.readAsDataURL(file);
             }
         }
+        document.getElementById('editEmail').addEventListener('input', () => {
+            document.getElementById('profSubmit').disabled = (document.getElementById('profileIcon').src == document.getElementById('currentProfileIcon').src)
+                && (user.email == document.getElementById('editEmail').value);
+        });
 
         // Function to open the change password modal
         document.getElementById('changePasswordMenu').addEventListener('click', () => {
@@ -352,6 +391,12 @@
         // Function to close the change password modal
         document.getElementById('closeChangePasswordModal').addEventListener('click', () => {
             document.getElementById('changePasswordModal').classList.add('hidden');
+            document.getElementById('passMess0').textContent = '';
+            document.getElementById('passMess1').textContent = '';
+            document.getElementById('passMess2').textContent = '';
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
         });
         // Function to handle the submission of the change password form
         document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
@@ -385,16 +430,37 @@
             } else alert(response.message);
         });
 
+        // Function to open the delete account modal
+        document.getElementById('deleteAccountMenu').addEventListener('click', () => {
+            document.getElementById('deleteAccountModal').classList.remove('hidden');
+        });
+        // Function to close the delete account modal
+        document.getElementById('cancelDeleteAccount').addEventListener('click', () => {
+            document.getElementById('deleteAccountModal').classList.add('hidden');
+        });
+        // Function to handle the confirmation of account deletion
+        document.getElementById('confirmDeleteAccount').addEventListener('click', async () => {
+            const response = await (await fetch('/signup/deleteUser', {
+                method: 'DELETE'
+            })).json();
+
+            if (response.success) {
+                alert(response.message);
+                logout();
+            }
+            document.getElementById('deleteAccountModal').classList.add('hidden');
+        });
+
         async function logout() {
             await fetch('/login/logout', {
-                method: 'POST',
+                method: 'POST'
             });
             window.location.reload();
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
             renderTasks();
-            const user = await (await fetch('/login/user')).json();
+            user = await (await fetch('/login/user')).json();
             document.getElementById('helloMessage').textContent = `Hello, ${user.username}!`;
             if (user.profileIcon) {
                 document.getElementById('profileIcon').src = user.profileIcon;

@@ -34,6 +34,9 @@ app.get('/login', (req, res) => {
 app.get('/signup', (req, res) => {
     res.sendFile(`${__dirname}/static/signup.html`);
 });
+app.use((req, res, next) => {
+    res.status(404).send('Error 404: Page not found');
+});
 
 const PORT = 80;
 app.listen(PORT, () => { console.log(`App running on http://localhost:${PORT}`) });

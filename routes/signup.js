@@ -34,4 +34,14 @@ router.post('/register', async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
+router.delete('/deleteUser', async (req, res) => {
+    try {
+        await mongo.getDB().collection('tasks').deleteMany({ "userId": req.session.user._id });
+        await coll.deleteOne({ 'username': req.session.user.username });
+        res.json({ success: true, message: 'Account deleted successfully.' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
 module.exports = router;
