@@ -23,7 +23,7 @@
                 <div class="relative inline-block text-left">
                     <button id="profileButton" type="button" class="text-white">
                         <img id="profileIcon" src="/images/profile.jpg" alt="Profile Image"
-                            class="w-8 h-8 rounded-full">
+                            class="w-8 h-8 rounded-full" style="min-width: 32px; min-height: 32px;">
                     </button>
                     <div id="profileDropdown" style="right: -2rem; outline: 2px solid #55637a;"
                         class="hidden absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg">
@@ -72,7 +72,7 @@
                     <div class="flex flex-col mb-4">
                         <label for="editTitle" class="text-white">Task Title:</label>
                         <input type="text" id="editTitle" class="p-2 text-gray-600 rounded border border-gray-700 mb-2"
-                            placeholder="Task Title" required>
+                            placeholder="Task Title" tabindex="0" required>
                     </div>
                     <div class="flex flex-col mb-4">
                         <label for="editDescription" class="text-white">Task Description:</label>
@@ -118,7 +118,7 @@
                     <div class="flex flex-col mb-4">
                         <label for="editEmail" class="text-white">Email:</label>
                         <input type="email" id="editEmail" class="p-2 text-gray-600 rounded border border-gray-700"
-                            placeholder="Your Email" required>
+                            placeholder="Your Email" tabindex="0" required>
                         <p id="profMess" class="text-red-500 mb-2"></p>
                     </div>
                     <div class="flex flex-col mb-4">
@@ -149,7 +149,7 @@
                         <label for="currentPassword" class="text-white">Current Password:</label>
                         <input type="password" id="currentPassword"
                             class="p-2 text-gray-600 rounded border border-gray-700" placeholder="Current Password"
-                            required>
+                            tabindex="0" required>
                         <p id="passMess0" class="text-red-500 mb-2"></p>
                     </div>
                     <div class="flex flex-col mb-4">
@@ -185,7 +185,7 @@
                 <p class="text-white mb-4">Are you sure you want to delete your account? This action cannot be undone.
                 </p>
                 <div class="flex justify-end">
-                    <button id="confirmDeleteAccount"
+                    <button id="confirmDeleteAccount" tabindex="0"
                         class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2">Yes</button>
                     <button id="cancelDeleteAccount"
                         class="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -288,6 +288,7 @@
 
             // Show the edit task modal
             document.getElementById('editTaskModal').classList.remove('hidden');
+            document.getElementById('editTitle').focus();
         }
 
         // Function to close the edit task modal
@@ -330,6 +331,7 @@
         // Function to open the edit profile modal
         document.getElementById('editProfileMenu').addEventListener('click', async () => {
             document.getElementById('editProfileModal').classList.remove('hidden');
+            document.getElementById('editEmail').focus();
             document.getElementById('profSubmit').disabled = true;
             user = await (await fetch('/login/user')).json();
             document.getElementById('editEmail').value = user.email;
@@ -387,6 +389,7 @@
         // Function to open the change password modal
         document.getElementById('changePasswordMenu').addEventListener('click', () => {
             document.getElementById('changePasswordModal').classList.remove('hidden');
+            document.getElementById('currentPassword').focus();
         });
         // Function to close the change password modal
         document.getElementById('closeChangePasswordModal').addEventListener('click', () => {
@@ -433,6 +436,7 @@
         // Function to open the delete account modal
         document.getElementById('deleteAccountMenu').addEventListener('click', () => {
             document.getElementById('deleteAccountModal').classList.remove('hidden');
+            document.getElementById('confirmDeleteAccount').focus();
         });
         // Function to close the delete account modal
         document.getElementById('cancelDeleteAccount').addEventListener('click', () => {
